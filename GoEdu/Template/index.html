@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
+    {% load staticfiles %}
+    <script src="{% static 'jwplayer/jwplayer.js' %}"></script>
+    <script src="{% static 'jsfiles/jquery.min.js' %}"></script>
+    <script src="{% static 'jsfiles/hls_page.js' %}"></script>
+    <script src="{% static 'cssfiles/hls_page.css' %}"></script>
+<title>Welcome to learn Go!</title>
+<script type="text/javascript">
+    jwplayer("player").setup({
+    sources: [
+        {
+            file: "rtmp://192.168.13.68:1935/live/xjtu"
+        }
+    ],
+    image: "bg.jpg",
+    autostart: false,
+    width: 1280,
+    height: 960,
+    primary: "flash"
+    });
+</script>
+<link href='cssfiles/hls_page.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+    <h1>You are in xjtu school,and my class :software</h1>
+    <div>
+        <div id="player"  >Loading the player ...</div>
+        <div id='chatroom' align='center' >
+            <div> <h1>Received Messages</h1> <br></div>
+            <div id="messagecontainer" style='height:70%;width:100%;overflow-x:scroll;overflow-y:scroll'></div>
+            <div>
+                <textarea style='height:25%;width:100%;'id="message" value="Hello, World!"></textarea>
+            <button type="button" id="connect_websocket">连接 websocket</button>
+            <button type="button" id="send_message">发送 message</button>
+            <button type="button" id="close_websocket">关闭 websocket</button>
+            </div>
+        </div>
+    </div>
+    <div id='filearea'>
+        <div class = 'row pre-scrollable'  align='cneter' style='height:85%;width:100%;overflow-x:scroll;overflow-y:scroll'>
+            <ul class = 'filelist' id='upul'>
+            </ul>
+        </div>
+        <div  align='cneter'>
+            <input type ='file' name='coursefile' id='file_upload' />
+            <input type='submit' onclick='file_upload("no")'    value='Submit'/>
+            <input type='submit' onclick='file_upload("yes")'    value='Submit'/>
+        </div>
+    </div>
+
+
+</body>
+</html>

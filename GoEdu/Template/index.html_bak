@@ -1,0 +1,160 @@
+<html>
+<head>
+<title>Welcome to learn Go!</title>
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
+    {% load staticfiles %}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+<script src='http://code.jquery.com/jquery-1.11.1.min.js'></script>
+<script >
+function chatroom_connect() {
+    if (window.s) {
+        window.s.close()
+    }
+    /*创建socket连接*/
+    addr = 'ws://192.168.13.68:8999/GoLearing/hls/echo/{{schoolname}}/{{classname}}/'
+    /*addr = "ws://"+window.location.host+"/GoLearing/hls/echo/"*/
+    var socket = new WebSocket(addr);
+    socket.onopen = function () {
+        console.log('WebSocket open');//成功连接上Websocket
+    };
+    socket.onmessage = function (e) {
+        console.log('message: ' + e.data);//打印出服务端返回过来的数据
+        $('#messagecontainer').prepend('<p>' + e.data + '</p>');
+    };
+    // Call onopen directly if socket is already open
+    if (socket.readyState == WebSocket.OPEN) socket.onopen();
+    window.s = socket;
+}
+
+function chatroom_send() {
+    //如果未连接到websocket
+    if (!window.s) {
+        alert("websocket未连接.");
+    } else {
+        window.s.send($('#message').val());//通过websocket发送数据
+    }
+}
+
+function chatroom_close() {
+    if (window.s) {
+        window.s.close();//关闭websocket
+        console.log('websocket已关闭');
+    }
+}
+
+
+function file_upload(is_index)
+{
+    var form_data = new FormData();
+    if (is_index == "no")
+    {
+        var file_name = document.getElementById('file_upload').files[0];
+        form_data.append('filename',file_name);
+    }
+    $.ajax({
+        type:'POST',
+        url :'/GoLearing/hls/{{schoolname}}/{{classname}}/',
+        data:form_data, 
+        contentType:false,
+        processData:false,
+        mimeType:"multipart/form-data",
+        error:function()
+        {
+            alert('请求失败');
+        },
+        success:function(arg)
+        {
+            val = JSON.parse(arg).Courseware_name;
+            $('#upul').empty();
+            for (var inode=0; inode<val.length; inode++)
+            {
+                $('#upul').append('<li id="upli"><a href="/GoLearing/hls/download/{{schoolname}}/{{classname}}/'+val[inode]+'/" >'+val[inode]+'</a></li>');	
+            }
+        }
+    });
+}
+
+$(document).ready(function()
+    {
+        file_upload("yes");
+        $('#connect_websocket').click(function () {
+            chatroom_connect();
+    });
+        $('#send_message').click(function () {
+            chatroom_send();
+    });
+        $('#close_websocket').click(function () {
+            chatroom_close();
+    });
+    });
+</script>
+<script type="text/javascript" src="jwplayer/jwplayer.js"></script>
+<script type="text/javascript">
+    jwplayer("player").setup({
+    sources: [
+        {
+            file: "rtmp://192.168.13.68:1935/live/xjtu"
+        }
+    ],
+    image: "bg.jpg",
+    autostart: false,
+    width: 1280,
+    height: 960,
+    primary: "flash"
+    });
+</script>
+<style type='text/css'>
+    #player {
+        width: 70%;
+        height: 60%;
+        position:absolute;
+        left:10px;
+        background-color:lightgreen;
+    }
+    #chatroom {
+        width: 25%;
+        height: 60%;
+        position:absolute;
+        right:10px;
+        background-color:lightblue;
+    }
+    #filearea {
+        width: 100%;
+        height: 20%;
+        position:absolute;
+        top:75%;
+        background-color:coral;
+    }
+</style>
+</head>
+
+<body>
+    <h1>You are in {{schoolname}}school,and my class :{{classname}}</h1>
+    <div>
+        <div id="player"  >Loading the player ...</div>
+        <div id='chatroom' align='center' >
+            <div> <h1>Received Messages</h1> <br></div>
+            <div id="messagecontainer" style='height:60%;width:100%;overflow-x:scroll;overflow-y:scroll'></div>
+            <div>
+                <textarea style='height:25%;width:100%;'id="message" value="Hello, World!"></textarea>
+            <button type="button" id="connect_websocket">连接 websocket</button>
+            <button type="button" id="send_message">发送 message</button>
+            <button type="button" id="close_websocket">关闭 websocket</button>
+            </div>
+        </div>
+    </div>
+    <div id='filearea'>
+        <div class = 'row pre-scrollable'  align='cneter' style='height:85%;width:100%;overflow-x:scroll;overflow-y:scroll'>
+            <ul class = 'filelist' id='upul'>
+            </ul>
+        </div>
+        <div  align='cneter'>
+            <input type ='file' name='coursefile' id='file_upload' />
+            <input type='submit' onclick='file_upload("no")'    value='Submit'/>
+            <input type='submit' onclick='file_upload("yes")'    value='Flush'/>
+        </div>
+    </div>
+
+
+</body>
+</html>
